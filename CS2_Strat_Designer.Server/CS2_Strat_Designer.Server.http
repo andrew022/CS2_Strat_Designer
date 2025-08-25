@@ -1,0 +1,6 @@
+@CS2_Strat_Designer.Server_HostAddress = http://localhost:5241
+
+GET {{CS2_Strat_Designer.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
