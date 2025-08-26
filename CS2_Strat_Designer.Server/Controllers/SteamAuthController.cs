@@ -34,7 +34,7 @@ namespace CS2_Strat_Designer.Server.Controllers
 
             var steamID = steamId.Split('/').Last(); // grabs steamid from url
 
-            return Redirect($"https://localhost:52838/?steamid={Uri.EscapeDataString(steamID)}"); // redirects back to main page
+            return Redirect($"https://localhost:53193/?steamid={Uri.EscapeDataString(steamID)}"); // redirects back to main page
         }
     }
 }
