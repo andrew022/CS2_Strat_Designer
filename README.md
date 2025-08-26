@@ -27,7 +27,7 @@ I am making a strategy designer for Counter-Srtike 2 maps.<br/>
   ➣ Learned how to do more with TypeScript<br/>
   ➣ Basics of React<br/>
   ➣ Implementing Konva and learning how to use images and makem movable shapes/images<br/>
-  ➣ How to implement Steam login with openID
+  ➣ How to implement Steam login with openID<br/>
   ➣ Place hooks in seperate files and export them to the main .tsx file
 
 ---
