@@ -1,128 +1,18 @@
-import { useEffect, useState } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Stage, Layer, Image as KonvaImage, Circle } from 'react-konva';
-import useImage from 'use-image';
-
+import { useItemHandling } from './hooks/ItemHandling';
+import { useMapSelection } from './hooks/MapSelection';
+import { useSteamAuth } from './hooks/SteamAuth';
 function HomePage() {
 
-    {/* Steam Authentication */ }
-    const [steamId, setSteamId] = useState<string | null>(null);
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get("steamid");
-        if (id) {
-            setSteamId(id);
-            localStorage.setItem("steamid", id);
-            window.history.replaceState({}, document.title, "/");
-        } else {
-            const saved = localStorage.getItem("steamid");
-            if (saved) setSteamId(saved);
-        }
-    }, []);
+    const {
+        circles, setCircles, flashes, setFlashes, smokes, setSmokes, selectedItem, setSelectedItem, flashIcon, smokeIcon, handleAddCircle, handleAddFlash, handleAddSmoke, handleClearCanvas,
+    } = useItemHandling();
 
-    const handleLogout = (): void => {
-        setSteamId(null);
-        localStorage.removeItem("steamid");
-        setCircles([]);
-        setFlashes([]);
-        setSmokes([]);
-    };
+    const { selectedMap, image, handleMapChange } = useMapSelection();
 
-    {/* Adding Circles, Flashes, and Smokes */ }
-    const [selectedItem, setSelectedItem] = useState<{ type: 'circle' | 'flash' | 'smoke'; id: number } | null>(null);
-    const [flashes, setFlashes] = useState<FlashData[]>([]);
-    const [smokes, setSmokes] = useState<SmokeData[]>([]);
-    const [circles, setCircles] = useState<CircleData[]>([]);
-
-    type Team = 'CT' | 'T';
-
-    type CircleData = {
-        id: number;
-        x: number;
-        y: number;
-        team: Team;
-    };
-
-    const [flashIcon] = useImage('/flash-effect.png'); 
-    type FlashData = {
-        id: number;
-        x: number;
-        y: number;
-    };
-
-    const [smokeIcon] = useImage('/smoke-effect.png');
-    type SmokeData = {
-        id: number;
-        x: number;
-        y: number;
-    };
-
-    const handleAddCircle = (team: Team) => {
-        const teamCount = circles.filter(c => c.team === team).length
-        if (teamCount >= 5) {
-            alert(`${team} already has 5!`);
-            return;
-        }
-        const newCircle: CircleData = {
-            id: Date.now(),
-            x: 400,
-            y: 400,
-            team,
-        };
-        setCircles([...circles, newCircle]);
-    };
-
-    const handleAddFlash = () => {
-        const newFlash: FlashData = {
-            id: Date.now(),
-            x: 400,
-            y: 400,
-        };
-        setFlashes([...flashes, newFlash]);
-    };
-
-    const handleAddSmoke = () => {
-        const newSmoke: SmokeData = {
-            id: Date.now(),
-            x: 400,
-            y: 400,
-        };
-        setSmokes([...smokes, newSmoke]);
-    };
-
-    {/* Map Selection */ }
-    const [selectedMap, setSelectedMap] = useState<string>('Blank');
-    const mapImagePaths: { [key: string]: string } = {
-        Dust2: '/dust2.png',
-        Mirage: '/mirage.png',
-        Ancient: '/ancient.png',
-        Overpass: '/overpass.png',
-        Inferno: '/inferno.png',
-        Nuke: '/nuke.png',
-        Train: '/train.png',
-        Vertigo: '/vertigo.png',
-    };
-    const [image] = useImage(mapImagePaths[selectedMap]);
-    const handleMapChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
-        setSelectedMap(event.target.value);
-        setCircles([]);
-        setFlashes([]);
-        setSmokes([]);
-    };
-
-    {/* Clear Canvas */}
-
-    const handleClearCanvas = () => {
-        const teamCount = circles.filter(c => c.team === c.team).length
-        if (teamCount === 0 && flashes.length === 0 && smokes.length === 0) {
-            alert("Canvas is already clear!");
-            return;
-        }
-        setCircles([]);
-        setFlashes([]);
-        setSmokes([]);
-    }; 
+    const { steamId, handleLogout } = useSteamAuth();
 
     {/* Page Contents */ }
     return (
@@ -168,16 +58,16 @@ function HomePage() {
                 ) : (
                     <p><b>Login to use buttons!</b></p>
                 )}
-                <button className='teamBtn' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleAddCircle('CT')} style={{ marginLeft: '10px' }}>
+                <button className='teamBtn' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleAddCircle('CT')}>
                     Add CT
                 </button>
-                <button className='teamBtn' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleAddCircle('T')} style={{ marginLeft: '10px' }}>
+                <button className='teamBtn' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleAddCircle('T')}>
                     Add T
                 </button>
-                <button className='util' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleAddFlash()} style={{ marginLeft: '10px' }}>
+                <button className='util' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleAddFlash()}>
                     Add Flash
                 </button>
-                <button className='util' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleAddSmoke()} style={{ marginLeft: '10px' }}>
+                <button className='util' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleAddSmoke()}>
                     Add Smoke
                 </button>
                 <button className='delete'
@@ -195,7 +85,7 @@ function HomePage() {
                     }}>
                     Delete Selected
                 </button>
-                <button className='clear' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleClearCanvas()} style={{ marginLeft: '10px' }}>
+                <button className='clear' disabled={selectedMap === 'Blank' || !steamId} onClick={() => handleClearCanvas()}>
                     Clear Canvas
                 </button>
             </div>
@@ -235,7 +125,6 @@ function HomePage() {
                                     y={flash.y}
                                     width={40}
                                     height={40}
-                                    radius={10}
                                     onClick={() => setSelectedItem({ type: 'flash', id: flash.id })}
                                     shadowColor={selectedItem?.type === 'flash' && selectedItem?.id === flash.id ? '#FF5D5F' : undefined}
                                     shadowBlur={selectedItem?.type === 'flash' && selectedItem?.id === flash.id ? 15 : 0}
