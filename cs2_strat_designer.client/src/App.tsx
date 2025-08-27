@@ -29,6 +29,7 @@ function HomePage() {
         eraseToggle,
         setEraseToggle,
         setTool,
+        stageRef,
         tool, } = useItemHandling();
 
     const { selectedMap, image, handleMapChange } = useMapSelection();
@@ -69,6 +70,7 @@ function HomePage() {
                     <option value="Nuke">Nuke</option>
                     <option value="Train">Train</option>
                     <option value="Vertigo">Vertigo</option>
+                    <option value="Anubis">Anubis</option>
                 </select>
             </div>
             <div className="div4">
@@ -137,6 +139,7 @@ function HomePage() {
                         eraseToggle={eraseToggle}
                         setEraseToggle={setEraseToggle}
                         setTool={setTool}
+                        stageRef={stageRef}
                     />
                 </div>
             </div>

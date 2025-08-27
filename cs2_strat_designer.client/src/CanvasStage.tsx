@@ -1,6 +1,7 @@
 import React from 'react';
 import { Stage, Layer, Image as KonvaImage, Circle, Line } from 'react-konva';
 import type { CircleData, FlashData, SmokeData, LineData } from './hooks/ItemHandling';
+import Konva from 'konva';
 
 type CanvasStageProps = {
     width: number;
@@ -27,6 +28,7 @@ type CanvasStageProps = {
     eraseToggle: boolean;
     setEraseToggle: React.Dispatch<React.SetStateAction<boolean>>;
     setTool: React.Dispatch<React.SetStateAction<'brush' | 'eraser'>>;
+    stageRef: React.MutableRefObject<Konva.Stage | null>;
 };
 
 export const CanvasStage: React.FC<CanvasStageProps> = ({
@@ -54,7 +56,49 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
     eraseToggle,
     setEraseToggle,
     setTool,
+    stageRef,
 }) => {
+
+    const handleWheel = (e: any) => {
+        if (!(selectedMap === 'Blank' || !steamId)){
+            e.evt.preventDefault();
+
+            const stage = stageRef.current;
+            if (!stage) return;
+            const oldScale = stage.scaleX();
+            const pointer = stage.getPointerPosition();
+            if (!pointer) return;
+
+            const mousePointTo = {
+                x: (pointer.x - stage.x()) / oldScale,
+                y: (pointer.y - stage.y()) / oldScale,
+            };
+
+            let direction = e.evt.deltaY > 0 ? -1 : 1;
+            if (e.evt.ctrlKey) {
+                direction = -direction;
+            }
+
+            const scaleBy = 1.05;
+            const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+            stage.scale({ x: newScale, y: newScale });
+
+            const newPos = {
+                x: pointer.x - mousePointTo.x * newScale,
+                y: pointer.y - mousePointTo.y * newScale,
+            };
+            stage.position(newPos);
+        }
+        return;
+    };
+
+    const handleResetZoom = () => {
+        const stage = stageRef.current;
+        if (!stage) return;
+        stage.scale({ x: 1, y: 1 });
+        stage.position({ x: 0, y: 0 });
+    };
 
     const handleBrushToggle = () => {
         setBrushToggle(prev => !prev);
@@ -126,9 +170,14 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
             }}>
                 Clear Scribbles
             </button>
+            <button onClick={handleResetZoom} disabled={selectedMap === 'Blank' || !steamId}>
+                Reset Zoom
+            </button>
             <Stage
                 width={width}
                 height={height}
+                ref={stageRef}
+                onWheel={handleWheel}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}

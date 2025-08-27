@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import useImage from 'use-image';
 import React from 'react';
 
@@ -38,7 +38,7 @@ export function useItemHandling() {
     const isDrawing = React.useRef(false);
     const [brushToggle, setBrushToggle] = useState(false);
     const [eraseToggle, setEraseToggle] = useState(false);
-
+    const stageRef = useRef(null);
 
     const handleAddCircle = (team: Team) => {
         const teamCount = circles.filter(c => c.team === team).length
@@ -109,5 +109,6 @@ export function useItemHandling() {
         setBrushToggle,
         eraseToggle,
         setEraseToggle,
+        stageRef,
     };
 }
