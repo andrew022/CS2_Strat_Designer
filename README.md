@@ -1,6 +1,6 @@
 # Hello, 👋
 
-Here are some of the tools and technologies I'm working with:
+Here are some of the tools and technologies I'm working with or going to work with:
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
