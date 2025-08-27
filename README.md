@@ -11,6 +11,7 @@ Here are some of the tools and technologies I'm working with:
 ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
 ![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![SignalR](https://img.shields.io/badge/SignalR-68217A?style=for-the-badge&logo=dot-net&logoColor=white)
 
 ---
 
@@ -28,12 +29,14 @@ I am making a strategy designer for Counter-Srtike 2 maps.<br/>
   ➣ Basics of React<br/>
   ➣ Implementing Konva and learning how to use images and makem movable shapes/images<br/>
   ➣ How to implement Steam login with openID<br/>
-  ➣ Place hooks in seperate files and export them to the main .tsx file
+  ➣ Place hooks in seperate files and export them to the main .tsx file<br/>
+  ➣ Create a free drawing layer and how to add an eraser
 
 ---
 
 ## What I'm Doing Next
   ➣ <s>Flushing out the controls and smoothness of the application</s><br/>
   ➣ <s>Format for a smoother design feel</s><br/>
+  ➣ Use SignalR for private rooms to hold up to 5 people for group designing<br/>
   ➣ Incorporate a database to store the locations of the Konva items as well the selected map<br/>
   ➣ Deploy to AWS ECS
