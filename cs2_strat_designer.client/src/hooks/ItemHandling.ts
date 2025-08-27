@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useImage from 'use-image';
+import React from 'react';
 
 export type Team = 'CT' | 'T';
 
@@ -21,7 +22,10 @@ export type SmokeData = {
     x: number;
     y: number;
 };
-
+export type LineData = {
+    points: number[];
+    tool: 'brush' | 'eraser';
+};
 export function useItemHandling() {
     const [selectedItem, setSelectedItem] = useState<{ type: 'circle' | 'flash' | 'smoke'; id: number } | null>(null);
     const [flashes, setFlashes] = useState<FlashData[]>([]);
@@ -29,6 +33,12 @@ export function useItemHandling() {
     const [circles, setCircles] = useState<CircleData[]>([]);
     const [flashIcon] = useImage('/flash-effect.png');
     const [smokeIcon] = useImage('/smoke-effect.png');
+    const [tool, setTool] = React.useState<'brush' | 'eraser'>('brush');
+    const [lines, setLines] = React.useState<LineData[]>([]);
+    const isDrawing = React.useRef(false);
+    const [brushToggle, setBrushToggle] = useState(false);
+    const [eraseToggle, setEraseToggle] = useState(false);
+
 
     const handleAddCircle = (team: Team) => {
         const teamCount = circles.filter(c => c.team === team).length
@@ -72,6 +82,7 @@ export function useItemHandling() {
         setCircles([]);
         setFlashes([]);
         setSmokes([]);
+        setLines([]);
     }; 
 
     return {
@@ -89,5 +100,14 @@ export function useItemHandling() {
         flashIcon,
         smokeIcon,
         handleClearCanvas,
+        tool,
+        setTool,
+        lines,
+        setLines,
+        isDrawing,
+        brushToggle,
+        setBrushToggle,
+        eraseToggle,
+        setEraseToggle,
     };
 }

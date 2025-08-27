@@ -1,14 +1,35 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Stage, Layer, Image as KonvaImage, Circle } from 'react-konva';
 import { useItemHandling } from './hooks/ItemHandling';
 import { useMapSelection } from './hooks/MapSelection';
 import { useSteamAuth } from './hooks/SteamAuth';
+import { CanvasStage } from './CanvasStage';
 function HomePage() {
 
     const {
-        circles, setCircles, flashes, setFlashes, smokes, setSmokes, selectedItem, setSelectedItem, flashIcon, smokeIcon, handleAddCircle, handleAddFlash, handleAddSmoke, handleClearCanvas,
-    } = useItemHandling();
+        circles,
+        setCircles,
+        flashes,
+        setFlashes,
+        smokes,
+        setSmokes,
+        selectedItem,
+        setSelectedItem,
+        flashIcon,
+        smokeIcon,
+        handleAddCircle,
+        handleAddFlash,
+        handleAddSmoke,
+        handleClearCanvas,
+        lines,
+        isDrawing,
+        setLines,
+        brushToggle,
+        setBrushToggle,
+        eraseToggle,
+        setEraseToggle,
+        setTool,
+        tool, } = useItemHandling();
 
     const { selectedMap, image, handleMapChange } = useMapSelection();
 
@@ -91,81 +112,32 @@ function HomePage() {
             </div>
             <div className="div5">
                 <div className="stage-wrapper">
-                    <Stage width={800} height={800}>
-                        <Layer>
-                            <KonvaImage image={image} width={800} height={800} />
-
-                            {circles.map((circle, index) => (
-                                <Circle
-                                    key={circle.id}
-                                    x={circle.x}
-                                    y={circle.y}
-                                    radius={10}
-                                    fill={circle.team === 'CT' ? '#5C94C1' : '#DEBC3F'}
-                                    onClick={() => setSelectedItem({ type: 'circle', id: circle.id })}
-                                    shadowColor={selectedItem?.type === 'circle' && selectedItem?.id === circle.id ? '#FF5D5F' : undefined}
-                                    shadowBlur={selectedItem?.type === 'circle' && selectedItem?.id === circle.id ? 15 : 0}
-                                    draggable
-                                    onDragEnd={(e) => {
-                                        const newCircles = [...circles];
-                                        newCircles[index] = {
-                                            ...circle,
-                                            x: e.target.x(),
-                                            y: e.target.y(),
-                                        };
-                                        setCircles(newCircles);
-                                    }}
-                                />
-                            ))}
-                            {flashes.map((flash, index) => (
-                                <KonvaImage
-                                    key={flash.id}
-                                    image={flashIcon}
-                                    x={flash.x}
-                                    y={flash.y}
-                                    width={40}
-                                    height={40}
-                                    onClick={() => setSelectedItem({ type: 'flash', id: flash.id })}
-                                    shadowColor={selectedItem?.type === 'flash' && selectedItem?.id === flash.id ? '#FF5D5F' : undefined}
-                                    shadowBlur={selectedItem?.type === 'flash' && selectedItem?.id === flash.id ? 15 : 0}
-                                    draggable
-                                    onDragEnd={(e) => {
-                                        const newFlash = [...flashes];
-                                        newFlash[index] = {
-                                            ...flash,
-                                            x: e.target.x(),
-                                            y: e.target.y(),
-                                        };
-                                        setFlashes(newFlash);;
-                                    }}
-                                />
-                            ))}
-                            {smokes.map((smoke, index) => (
-                                <KonvaImage
-                                    key={smoke.id}
-                                    image={smokeIcon}
-                                    x={smoke.x}
-                                    y={smoke.y}
-                                    width={60}
-                                    height={60}
-                                    radius={10}
-                                    onClick={() => setSelectedItem({ type: 'smoke', id: smoke.id })}
-                                    shadowColor={selectedItem?.type === 'smoke' && selectedItem?.id === smoke.id ? '#FF5D5F' : undefined}
-                                    shadowBlur={selectedItem?.type === 'smoke' && selectedItem?.id === smoke.id ? 15 : 0}
-                                    draggable
-                                    onDragEnd={(e) => {
-                                        const newSmoke = [...smokes];
-                                        newSmoke[index] = {
-                                            ...smoke,
-                                            x: e.target.x(),
-                                            y: e.target.y(),
-                                        };
-                                        setSmokes(newSmoke);;
-                                    }}
-                                />
-                            ))}
-                        </Layer>
-                    </Stage>
+                    <CanvasStage
+                        width={800}
+                        height={600}
+                        image={image}
+                        circles={circles}
+                        setCircles={setCircles}
+                        flashes={flashes}
+                        setFlashes={setFlashes}
+                        smokes={smokes}
+                        setSmokes={setSmokes}
+                        lines={lines}
+                        setLines={setLines}
+                        tool={tool}
+                        isDrawing={isDrawing}
+                        selectedItem={selectedItem}
+                        setSelectedItem={setSelectedItem}
+                        flashIcon={flashIcon}
+                        smokeIcon={smokeIcon}
+                        setBrushToggle={setBrushToggle}
+                        brushToggle={brushToggle}
+                        selectedMap={selectedMap}
+                        steamId={steamId}
+                        eraseToggle={eraseToggle}
+                        setEraseToggle={setEraseToggle}
+                        setTool={setTool}
+                    />
                 </div>
             </div>
             <div className="div6">
