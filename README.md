@@ -1,6 +1,5 @@
 # Hello, 👋
 
-## 🛠️ Tech Stack
 Here are some of the tools and technologies I'm working with:
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
