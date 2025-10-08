@@ -7,8 +7,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+CS2_Strat_Designer.Server.csproj
 node_modules
+public
+Properties
+Controllers
 dist
+Program.cs
 dist-ssr
 *.local
 
@@ -22,3 +27,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+

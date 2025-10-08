@@ -3,7 +3,7 @@ import useImage from 'use-image';
 import { useItemHandling } from './ItemHandling';
 export function useMapSelection() {
 
-    const { setCircles, setFlashes, setSmokes } = useItemHandling();
+    const { setLines, setCT, setT, setFlashes, setSmokes } = useItemHandling();
 
     const [selectedMap, setSelectedMap] = useState<string>('Blank');
     const mapImagePaths: { [key: string]: string } = {
@@ -20,7 +20,9 @@ export function useMapSelection() {
     const [image] = useImage(mapImagePaths[selectedMap]);
     const handleMapChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
         setSelectedMap(event.target.value);
-        setCircles([]);
+        setLines([]);
+        setT([]);
+        setCT([]);
         setFlashes([]);
         setSmokes([]);
     };

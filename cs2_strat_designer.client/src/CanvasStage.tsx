@@ -1,14 +1,12 @@
 import React from 'react';
-import { Stage, Layer, Image as KonvaImage, Circle, Line } from 'react-konva';
-import type { CircleData, FlashData, SmokeData, LineData } from './hooks/ItemHandling';
+import { Stage, Layer, Image as KonvaImage, Line } from 'react-konva';
+import type { FlashData, SmokeData, LineData, CTData, TData, HeData, FireData } from './hooks/ItemHandling';
 import Konva from 'konva';
 
 type CanvasStageProps = {
     width: number;
     height: number;
     image: HTMLImageElement | undefined;
-    circles: CircleData[];
-    setCircles: React.Dispatch<React.SetStateAction<CircleData[]>>;
     flashes: FlashData[];
     setFlashes: React.Dispatch<React.SetStateAction<FlashData[]>>;
     smokes: SmokeData[];
@@ -17,26 +15,46 @@ type CanvasStageProps = {
     setLines: React.Dispatch<React.SetStateAction<LineData[]>>;
     tool: 'brush' | 'eraser';
     isDrawing: React.MutableRefObject<boolean>;
-    selectedItem: { type: 'circle' | 'flash' | 'smoke'; id: number } | null;
-    setSelectedItem: React.Dispatch<React.SetStateAction<{ type: 'circle' | 'flash' | 'smoke'; id: number } | null>>;
+    selectedItem: { type: 'fire' | 'he' | 'T' | 'CT' | 'flash' | 'smoke'; id: number } | null;
+    setSelectedItem: React.Dispatch<React.SetStateAction<{ type: 'fire' | 'he' | 'T' | 'CT' | 'flash' | 'smoke'; id: number } | null>>;
     flashIcon: HTMLImageElement | undefined;
     smokeIcon: HTMLImageElement | undefined;
     brushToggle: boolean;
     setBrushToggle: React.Dispatch<React.SetStateAction<boolean>>;
     selectedMap: string;
-    steamId: string | null;
     eraseToggle: boolean;
     setEraseToggle: React.Dispatch<React.SetStateAction<boolean>>;
     setTool: React.Dispatch<React.SetStateAction<'brush' | 'eraser'>>;
     stageRef: React.MutableRefObject<Konva.Stage | null>;
+    scale: number;
+    setScale: React.Dispatch<React.SetStateAction<number>>;
+    setCT: React.Dispatch<React.SetStateAction<CTData[]>>;
+    CT: CTData[];
+    setT: React.Dispatch<React.SetStateAction<TData[]>>;
+    T: TData[];
+    TIcon: HTMLImageElement | undefined;
+    CTIcon: HTMLImageElement | undefined;
+    fireIcon: HTMLImageElement | undefined;
+    heIcon: HTMLImageElement | undefined;
+    handleMouseDown: (e: any) => void;
+    handleMouseMove: (e: any) => void;
+    handleMouseUp: (e: any) => void;
+    handleMouseLeave: (e: any) => void;
+    handleBrushToggle: () => void;
+    handleEraseToggle: () => void;
+    handleClearCanvas: () => void;
+    setColor: React.Dispatch<React.SetStateAction<'red' | 'green' | 'blue' | 'yellow'>>;
+    color: 'red' | 'blue' | 'green' | 'yellow';
+    setHe: React.Dispatch<React.SetStateAction<HeData[]>>;
+    he: HeData[];
+    setFire: React.Dispatch<React.SetStateAction<FireData[]>>;
+    fire: FireData[];
 };
 
 export const CanvasStage: React.FC<CanvasStageProps> = ({
     width,
     height,
     image,
-    circles,
-    setCircles,
     flashes,
     setFlashes,
     smokes,
@@ -44,23 +62,38 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
     lines,
     setLines,
     tool,
-    isDrawing,
     selectedItem,
     setSelectedItem,
     flashIcon,
     smokeIcon,
     brushToggle,
-    setBrushToggle,
     selectedMap,
-    steamId,
-    eraseToggle,
-    setEraseToggle,
-    setTool,
     stageRef,
+    scale,
+    setScale,
+    setCT,
+    setT,
+    T,
+    CT,
+    TIcon,
+    CTIcon,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleMouseLeave,
+    handleClearCanvas,
+    setFire,
+    setHe,
+    he,
+    heIcon,
+    fireIcon,
+    fire,
 }) => {
 
+    {/* Handling zooming based on pointer position */ }
+
     const handleWheel = (e: any) => {
-        if (!(selectedMap === 'Blank' || !steamId)){
+        if (!(selectedMap === 'Blank')) {
             e.evt.preventDefault();
 
             const stage = stageRef.current;
@@ -82,6 +115,8 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
             const scaleBy = 1.05;
             const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
 
+            setScale(newScale)
+
             stage.scale({ x: newScale, y: newScale });
 
             const newPos = {
@@ -98,81 +133,30 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
         if (!stage) return;
         stage.scale({ x: 1, y: 1 });
         stage.position({ x: 0, y: 0 });
+        setScale(1);
     };
 
-    const handleBrushToggle = () => {
-        setBrushToggle(prev => !prev);
-    };
-
-    const handleEraseToggle = () => {
-        setEraseToggle(prev => {
-            const newValue = !prev;
-            setTool(newValue ? 'eraser' : 'brush');
-            return newValue;
-        });
-    };
-
-    const handleMouseDown = (e: any) => {
-        if (brushToggle === true || tool === 'eraser') {
-            isDrawing.current = true;
-            const pos = e.target.getStage().getPointerPosition();
-            setLines([...lines, { tool, points: [pos.x, pos.y] }]);
-        } else {
-            return;
-        }
-    };
-
-    const handleMouseMove = (e: any) => {
-        if (brushToggle === true || tool === 'eraser') {
-            if (!isDrawing.current) {
-                return;
-            }
-            const stage = e.target.getStage();
-            const point = stage.getPointerPosition();
-            let lastLine = lines[lines.length - 1];
-            lastLine.points = lastLine.points.concat([point.x, point.y]);
-            lines.splice(lines.length - 1, 1, lastLine);
-            setLines(lines.concat());
-        } else {
-            return;
-        }
-    };
-
-    const handleMouseUp = () => {
-        if (brushToggle === true || tool === 'eraser') {
-            isDrawing.current = false;
-        } else {
-            return;
-        }
-    };
-    const handleMouseLeave = () => {
-        if (brushToggle === true || tool === 'eraser') {
-            isDrawing.current = false;
-        } else {
-            return;
-        }
-    }
+    {/* Canvas contents */}
 
     return (
         <>
-            <button onClick={handleBrushToggle} disabled={selectedMap === 'Blank' || !steamId }>
-                {brushToggle ? 'Disable Brush' : 'Enable Brush'}
-            </button>
-            <button onClick={handleEraseToggle} disabled={selectedMap === 'Blank' || !steamId}>
-                {eraseToggle ? 'Disable Eraser' : 'Enable Eraser'}
-            </button>
-            <button disabled={selectedMap === 'Blank' || !steamId} onClick={() => {
-                if (lines.length === 0) {
-                    alert('Nothing to clear!');
-                    return;
-                }
-                setLines([]);
-            }}>
-                Clear Scribbles
-            </button>
-            <button onClick={handleResetZoom} disabled={selectedMap === 'Blank' || !steamId}>
-                Reset Zoom
-            </button>
+             <div>
+                <button disabled={selectedMap === 'Blank'} onClick={() => {
+                    if (lines.length === 0) {
+                        alert('Nothing to clear!');
+                        return;
+                    }
+                    setLines([]);
+                }}>
+                    Clear Scribbles
+                </button>
+                <button disabled={selectedMap === 'Blank' || brushToggle} onClick={handleClearCanvas}>
+                    Clear Canvas
+                </button>
+                <button onClick={handleResetZoom} disabled={selectedMap === 'Blank'}>
+                    Reset Zoom
+                </button>
+            </div>
             <Stage
                 width={width}
                 height={height}
@@ -181,7 +165,8 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseLeave}>
+                onMouseLeave={handleMouseLeave}
+                draggable={!brushToggle && tool !== 'eraser' && scale>1}>
                 <Layer>
                     {image && <KonvaImage image={image} width={width} height={height} />}
                 </Layer>
@@ -190,7 +175,7 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
                         <Line
                             key={i}
                             points={line.points}
-                            stroke={line.tool === 'eraser' ? 'white' : 'red'}
+                            stroke={line.tool === 'eraser' ? 'white' : line.color}
                             strokeWidth={line.tool === 'eraser' ? 20 : 5}
                             tension={0.5}
                             lineCap="round"
@@ -202,21 +187,41 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
                     ))}
                 </Layer>
                 <Layer>
-                    {circles.map((circle, i) => (
-                        <Circle
-                            key={circle.id}
-                            x={circle.x}
-                            y={circle.y}
-                            radius={10}
-                            fill={circle.team === 'CT' ? '#5C94C1' : '#DEBC3F'}
-                            onClick={() => setSelectedItem({ type: 'circle', id: circle.id })}
-                            shadowColor={selectedItem?.type === 'circle' && selectedItem?.id === circle.id ? '#FF5D5F' : undefined}
-                            shadowBlur={selectedItem?.type === 'circle' && selectedItem?.id === circle.id ? 15 : 0}
+                    {CT.map((CTs, i) => (
+                        <KonvaImage
+                            key={CTs.id}
+                            image={CTIcon}
+                            x={CTs.x}
+                            y={CTs.y}
+                            width={20}
+                            height={20}
+                            onClick={() => setSelectedItem({ type: 'CT', id: CTs.id })}
+                            shadowColor={selectedItem?.type === 'CT' && selectedItem?.id === CTs.id ? '#FF5D5F' : undefined}
+                            shadowBlur={selectedItem?.type === 'CT' && selectedItem?.id === CTs.id ? 15 : 0}
                             draggable
                             onDragEnd={(e) => {
-                                const newCircles = [...circles];
-                                newCircles[i] = { ...circle, x: e.target.x(), y: e.target.y() };
-                                setCircles(newCircles);
+                                const newCT = [...CT];
+                                newCT[i] = { ...CTs, x: e.target.x(), y: e.target.y() };
+                                setCT(newCT);
+                            }}
+                        />
+                    ))}
+                    {T.map((Ts, i) => (
+                        <KonvaImage
+                            key={Ts.id}
+                            image={TIcon}
+                            x={Ts.x}
+                            y={Ts.y}
+                            width={20}
+                            height={20}
+                            onClick={() => setSelectedItem({ type: 'T', id: Ts.id })}
+                            shadowColor={selectedItem?.type === 'T' && selectedItem?.id === Ts.id ? '#FF5D5F' : undefined}
+                            shadowBlur={selectedItem?.type === 'T' && selectedItem?.id === Ts.id ? 15 : 0}
+                            draggable
+                            onDragEnd={(e) => {
+                                const newT = [...T];
+                                newT[i] = { ...Ts, x: e.target.x(), y: e.target.y() };
+                                setT(newT);
                             }}
                         />
                     ))}
@@ -255,6 +260,44 @@ export const CanvasStage: React.FC<CanvasStageProps> = ({
                                 const newSmokes = [...smokes];
                                 newSmokes[i] = { ...smoke, x: e.target.x(), y: e.target.y() };
                                 setSmokes(newSmokes);
+                            }}
+                        />
+                    ))}
+                    {he.map((hes, i) => (
+                        <KonvaImage
+                            key={hes.id}
+                            image={heIcon}
+                            x={hes.x}
+                            y={hes.y}
+                            width={60}
+                            height={60}
+                            onClick={() => setSelectedItem({ type: 'he', id: hes.id })}
+                            shadowColor={selectedItem?.type === 'he' && selectedItem?.id === hes.id ? '#FF5D5F' : undefined}
+                            shadowBlur={selectedItem?.type === 'he' && selectedItem?.id === hes.id ? 15 : 0}
+                            draggable
+                            onDragEnd={(e) => {
+                                const newHe = [...he];
+                                newHe[i] = { ...hes, x: e.target.x(), y: e.target.y() };
+                                setHe(newHe);
+                            }}
+                        />
+                    ))}
+                    {fire.map((fires, i) => (
+                        <KonvaImage
+                            key={fires.id}
+                            image={fireIcon}
+                            x={fires.x}
+                            y={fires.y}
+                            width={60}
+                            height={60}
+                            onClick={() => setSelectedItem({ type: 'fire', id: fires.id })}
+                            shadowColor={selectedItem?.type === 'fire' && selectedItem?.id === fires.id ? '#FF5D5F' : undefined}
+                            shadowBlur={selectedItem?.type === 'fire' && selectedItem?.id === fires.id ? 15 : 0}
+                            draggable
+                            onDragEnd={(e) => {
+                                const newFire = [...fire];
+                                newFire[i] = { ...fires, x: e.target.x(), y: e.target.y() };
+                                setFire(newFire);
                             }}
                         />
                     ))}

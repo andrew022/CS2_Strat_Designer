@@ -4,14 +4,6 @@ using AspNet.Security.OpenId.Steam;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; // uses cookies to keep track of logged in users
-    options.DefaultChallengeScheme = SteamAuthenticationDefaults.AuthenticationScheme; // use steam if not already logged in
-})
-    .AddCookie() // just enables cookie
-    .AddSteam(); // adds steam login with openID
-
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
